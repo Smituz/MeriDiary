@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "157596352019",
+    "project_id": "meridiary-v2",
+    "storage_bucket": "meridiary-v2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:157596352019:android:f83e4240fa874d0c8609e6",
+        "android_client_info": {
+          "package_name": "com.example.meridiary_v2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-mvc1LaqKIoHLrBTTNPL4AQuo33CE9Zs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
