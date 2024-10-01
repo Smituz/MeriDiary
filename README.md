@@ -65,7 +65,7 @@ This project is licensed under the MIT License. See the `LICENSE` file for more 
   
   ![WhatsApp Image 2024-10-01 at 22 35 08_1f062f51](https://github.com/user-attachments/assets/2b939002-5f9e-4f5e-847b-ef91439b3a5e)
 
-- ** Add Diary Entry Page**
+- **sAdd Diary Entry Page**
   
   ![WhatsApp Image 2024-10-01 at 22 35 09_09d9c486](https://github.com/user-attachments/assets/bba94f83-256b-4ed8-aea3-42c9a443a16f)
 
