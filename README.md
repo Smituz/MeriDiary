@@ -57,22 +57,28 @@ This project is licensed under the MIT License. See the `LICENSE` file for more 
 
 ## Screenshots
 
-- Login Page
+- **Login Page**
+  
 ![WhatsApp Image 2024-10-01 at 22 35 08_7f061e04](https://github.com/user-attachments/assets/5640ff9a-f22a-4ab7-9d5f-16036c372f9b)
 
-- Home Page
+- **Home Page**
+  
   ![WhatsApp Image 2024-10-01 at 22 35 08_1f062f51](https://github.com/user-attachments/assets/2b939002-5f9e-4f5e-847b-ef91439b3a5e)
 
-- Add Diary Entry Page
+- ** Add Diary Entry Page**
+  
   ![WhatsApp Image 2024-10-01 at 22 35 09_09d9c486](https://github.com/user-attachments/assets/bba94f83-256b-4ed8-aea3-42c9a443a16f)
 
-- Profile Page
+- **Profile Page**
+
   ![WhatsApp Image 2024-10-01 at 22 35 09_40fe65b6](https://github.com/user-attachments/assets/6636964d-8fc0-4a19-9f3a-9bed84061adf)
 
-- Goals Page
+- **Goals Page**
+  
   ![WhatsApp Image 2024-10-01 at 22 35 09_c2a9b8ae](https://github.com/user-attachments/assets/7cea37a7-6efc-411e-b8be-75fa156aa416)
 
-- Expense Tracker
+- **Expense Tracker**
+  
   ![WhatsApp Image 2024-10-01 at 22 35 10_c4735324](https://github.com/user-attachments/assets/4c5daf83-32e6-4db9-8c55-26e4a041dcb3)
 
 
