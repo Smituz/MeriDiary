@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import "package:intl/intl.dart";
+import 'package:intl/intl.dart';
 import 'diary_entry_screen.dart';
 import 'profile_screen.dart';
 import 'goals_screen.dart';
 import 'expenses_screen.dart';
-import 'mood_tarcker_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -16,7 +14,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  String? _hoveredCardDate; // Track hovered card date for hover effect
+  String? _hoveredCardDate;
   List<Map<String, dynamic>> _diaryEntries = [];
 
   Color _getMoodColor(String mood) {
@@ -35,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   String _formatDate(DateTime date) {
-    return DateFormat('MMM d, y').format(date); // Format date
+    return DateFormat('MMM d, y').format(date);
   }
 
   void _onItemTapped(int index) {
@@ -48,16 +46,12 @@ class _HomeScreenState extends State<HomeScreen> {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      print("Current user ID: ${user.uid}"); // Debugging output
-
       try {
         QuerySnapshot snapshot = await FirebaseFirestore.instance
-            .collection('diary_entries') // Updated collection name
+            .collection('diary_entries')
             .where('userId', isEqualTo: user.uid)
             .orderBy('date', descending: true)
             .get();
-
-        print("Fetched ${snapshot.docs.length} diary entries."); // Debugging output
 
         setState(() {
           _diaryEntries = snapshot.docs.map((doc) {
@@ -70,134 +64,128 @@ class _HomeScreenState extends State<HomeScreen> {
           }).toList();
         });
       } catch (e) {
-        print("Error fetching diary entries: $e"); // Print any error that occurs
+        print("Error fetching diary entries: $e");
       }
-    } else {
-      print("No user is currently logged in."); // Debugging output if no user is logged in
     }
   }
-
-
 
   @override
   void initState() {
     super.initState();
-    _fetchDiaryEntries(); // Fetch diary entries on init
+    _fetchDiaryEntries();
+  }
+
+  Widget _buildDiaryEntryCard(Map<String, dynamic> entry) {
+    final isHovered = _hoveredCardDate == _formatDate(entry['date']);
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hoveredCardDate = _formatDate(entry['date'])),
+      onExit: (_) => setState(() => _hoveredCardDate = null),
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 500),
+        transform: Matrix4.identity()..scale(isHovered ? 1.05 : 1.0),
+        transformAlignment: Alignment.center,
+        child: Card(
+          color: _getMoodColor(entry['mood']),
+          margin: EdgeInsets.all(8.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          child:ListTile(
+            contentPadding: EdgeInsets.all(16.0),
+            title: Text(entry['title'], style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text('${_formatDate(entry['date'])}\n${entry['content']}'),
+            isThreeLine: true,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DiaryEntryScreen(existingEntry: entry),
+                ),
+              ).then((_) {
+                _fetchDiaryEntries(); // Refresh entries after editing
+              });
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _getSelectedPage() {
+    switch (_selectedIndex) {
+      case 0:
+        return _diaryEntries.isNotEmpty
+            ? ListView.builder(
+          itemCount: _diaryEntries.length,
+          itemBuilder: (context, index) {
+            final entry = _diaryEntries[index];
+            return _buildDiaryEntryCard(entry);
+          },
+        )
+            : Center(
+          child: Text(
+            'Add your first diary entry now using the button below...',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        );
+      case 1:
+        return ProfileScreen();
+      case 2:
+        return GoalsScreen();
+      case 3:
+        return ExpensesScreen();
+      default:
+        return Center(child: Text('Page not found'));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget _getSelectedPage() {
-      switch (_selectedIndex) {
-        case 0:
-          return _diaryEntries.isNotEmpty
-              ? ListView.builder(
-            itemCount: _diaryEntries.length,
-            itemBuilder: (context, index) {
-              final entry = _diaryEntries[index];
-              final isHovered = _hoveredCardDate == _formatDate(entry['date']);
-              return MouseRegion(
-                onEnter: (_) => setState(() => _hoveredCardDate = _formatDate(entry['date'])),
-                onExit: (_) => setState(() => _hoveredCardDate = null),
-                child: AnimatedContainer(
-                  duration: Duration(milliseconds: 300),
-                  transform: Matrix4.identity()..scale(isHovered ? 1.05 : 1.0),
-                  transformAlignment: Alignment.center,
-                  child: Card(
-                    color: _getMoodColor(entry['mood']),
-                    margin: EdgeInsets.all(8.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0), // Rounded edges
-                    ),
-                    child: ListTile(
-                      contentPadding: EdgeInsets.all(16.0),
-                      title: Text(entry['title'], style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text('${_formatDate(entry['date'])}\n${entry['content']}'),
-                      isThreeLine: true,
-                      onTap: () {
-                        // Show a dialog with more details
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text(entry['title']),
-                              content: Text('${_formatDate(entry['date'])}\n${entry['content']}\n\n Feeling : ${entry['mood']}'),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: Text('Close'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              );
-            },
-          )
-              : Center(
-            child: Text(
-              'Add your first diary entry now using the button below...',
-              style: TextStyle(
-                fontSize: 20, // Increased font size for better visibility
-                fontWeight: FontWeight.bold, // Bold text for emphasis
-                color: Colors.black87, // Dark gray color for good contrast
-
-              ),
-              textAlign: TextAlign.center, // Center align the text
-            ),
-          );
-
-
-        case 1:
-          return ProfileScreen();
-        case 2:
-          return GoalsScreen();
-        case 3:
-          return ExpensesScreen();
-        // case 4:
-        //   return MoodTrackerScreen();
-        default:
-          return Center(child: Text('Page not found'));
-      }
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text('MeriDiary'),
-        backgroundColor: Color(0xFF673AB7), // Primary Color: Deep Purple
+        backgroundColor: Color(0xFF673AB7),
       ),
       body: _getSelectedPage(),
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home, color: _selectedIndex == 0 ? Color(0xFF673AB7) : Colors.grey),
+            icon: Icon(
+              Icons.home,
+              color: _selectedIndex == 0 ? Color(0xFF673AB7) : Colors.grey,
+            ),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person, color: _selectedIndex == 1 ? Color(0xFF673AB7) : Colors.grey),
+            icon: Icon(
+              Icons.person,
+              color: _selectedIndex == 1 ? Color(0xFF673AB7) : Colors.grey,
+            ),
             label: 'Profile',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.flag, color: _selectedIndex == 2 ? Color(0xFF673AB7) : Colors.grey),
+            icon: Icon(
+              Icons.flag,
+              color: _selectedIndex == 2 ? Color(0xFF673AB7) : Colors.grey,
+            ),
             label: 'My Goals',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.attach_money, color: _selectedIndex == 3 ? Color(0xFF673AB7) : Colors.grey),
+            icon: Icon(
+              Icons.attach_money,
+              color: _selectedIndex == 3 ? Color(0xFF673AB7) : Colors.grey,
+            ),
             label: 'My Expenses',
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.mood, color: _selectedIndex == 4 ? Color(0xFF673AB7) : Colors.grey),
-          //   label: 'Mood Tracker',
-          // ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Color(0xFF673AB7), // Primary Color for selected item
+        selectedItemColor: Color(0xFF673AB7),
         onTap: _onItemTapped,
       ),
       floatingActionButton: _selectedIndex == 0
@@ -206,23 +194,20 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => DiaryEntryScreen()),
-          ).then((_) {
-            _fetchDiaryEntries(); // Refresh entries after adding a new one
-          });
+          ).then((_) => _fetchDiaryEntries());
         },
-        backgroundColor: Color(0xFF673AB7), // Primary Color
+        backgroundColor: Color(0xFF673AB7),
         icon: Icon(Icons.add),
         label: Text(
           'Add New Entry',
           style: TextStyle(
-            fontSize: 16, // Increased font size for better visibility
-            fontWeight: FontWeight.bold, // Bold text for emphasis
-            color: Colors.white, // White text color for contrast
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
       )
           : null,
-
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
